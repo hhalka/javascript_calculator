@@ -1,0 +1,79 @@
+function infixToPostfix(infixexpr) {
+    var priorities = {};
+    // priorities["sin"] = 5;
+    priorities["^"] = 4;
+    priorities["*"] = 3;
+    priorities["/"] = 3;
+    priorities["-"] = 2;
+    priorities["+"] = 2;
+    priorities["("] = 1;
+    
+    //var unary = ["sin", "cos", "sqrt"];
+    
+    var opStack = [];
+    var postfixList = [];
+    var tokenList = infixexpr.split(" ");
+    var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    var digits = "0123456789";
+    debugger;
+    for(var i=0; i < tokenList.length; i++){
+        var token = tokenList[i];
+        if(alphabet.indexOf(token) !== -1 || digits.indexOf(token) !== -1){
+            postfixList.push(token);
+        }else if(token === "("){
+            opStack.push(token);
+        }else if(token === ")"){
+            var toptoken = opStack.pop();
+            while(toptoken !== "("){
+                postfixList.push(toptoken);
+                toptoken = opStack.pop();
+            }
+        }else{
+            while(opStack.length > 0 && priorities[opStack[opStack.length - 1]] >= priorities[token]){
+                postfixList.push(opStack.pop());
+            }
+            opStack.push(token);
+        }
+    }
+    while(opStack.length !== 0){
+        postfixList.push(opStack.pop());
+    }
+    return postfixList.join(" ");
+}
+
+
+function postfixEval(postfixExpr){
+    var operandStack = [];
+    var tokenList = postfixExpr.split(" ");
+    var digits = "0123456789";
+    for(var i = 0; i < tokenList.length; i++){
+        var token = tokenList[i];
+        if(digits.indexOf(token) !== -1) {
+            operandStack.push(parseInt(token));
+        }else {
+            var operand2 = operandStack.pop();
+            var operand1 = operandStack.pop();
+            var result = doMath(token, operand1, operand2);
+            operandStack.push(result);
+        }
+    }
+    return operandStack.pop();
+}
+
+function doMath(operator, operand1, operand2){
+    if(operator === "^"){
+        return Math.pow(operand1, operand2);
+    }else if(operator === "*") {
+        return operand1 * operand2;
+    }else if(operator === "/"){
+        return operand1 / operand2;
+    }else if(operator === "+") {
+        return operand1 + operand2;
+    }else {
+        return operand1 - operand2;
+    }
+}
+//console.log(postfixEval(infixToPostfix("2 * 5 + 3 * 4")));
+//console.log(postfixEval(infixToPostfix("( 3 + 5 ) * 4 - ( 1 - 6 ) * ( 9 + 1 )")));
+//console.log(postfixEval('7 8 + 3 2 + /'));
+console.log(postfixEval(infixToPostfix('5 * 3 ^ ( 4 - 2 )')));
